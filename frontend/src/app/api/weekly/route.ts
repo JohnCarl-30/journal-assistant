@@ -1,3 +1,4 @@
+// Temporary mock route until weekly generation is wired to the FastAPI backend.
 import { NextResponse } from "next/server";
 
 import { getWeeklySummaryData } from "@/modules/weekly-summary/models/weekly-summary";

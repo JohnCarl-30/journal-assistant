@@ -5,7 +5,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
-from app.api.deps import get_current_user_id
+from app.api.deps import get_current_user
+from app.core.security import AuthenticatedUser
 from app.models.dtos import GenerationJobDTO, GenerationRequest, ScopeType
 from app.services.demo_store import demo_store
 
@@ -31,7 +32,7 @@ def _format_sse(event: str, payload: dict[str, object]) -> str:
 @router.post("/weekly-summary", response_model=GenerationJobDTO, status_code=201)
 def create_weekly_summary_job(
     payload: GenerationRequest,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> GenerationJobDTO:
     scope_type, scope_id = _resolve_scope(
         payload.scope_type,
@@ -40,7 +41,7 @@ def create_weekly_summary_job(
         "2026-03-30",
     )
     return demo_store.create_generation_job(
-        current_user_id,
+        current_user.user_id,
         kind="weekly_summary",
         scope_type=scope_type,
         scope_id=scope_id,
@@ -50,7 +51,7 @@ def create_weekly_summary_job(
 @router.post("/dtr-narrative", response_model=GenerationJobDTO, status_code=201)
 def create_dtr_narrative_job(
     payload: GenerationRequest,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> GenerationJobDTO:
     scope_type, scope_id = _resolve_scope(
         payload.scope_type,
@@ -59,7 +60,7 @@ def create_dtr_narrative_job(
         "2026-04-02",
     )
     return demo_store.create_generation_job(
-        current_user_id,
+        current_user.user_id,
         kind="dtr_narrative",
         scope_type=scope_type,
         scope_id=scope_id,
@@ -69,7 +70,7 @@ def create_dtr_narrative_job(
 @router.post("/final-report", response_model=GenerationJobDTO, status_code=201)
 def create_final_report_job(
     payload: GenerationRequest,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> GenerationJobDTO:
     scope_type, scope_id = _resolve_scope(
         payload.scope_type,
@@ -78,7 +79,7 @@ def create_final_report_job(
         "term-spring-2026",
     )
     return demo_store.create_generation_job(
-        current_user_id,
+        current_user.user_id,
         kind="final_report",
         scope_type=scope_type,
         scope_id=scope_id,
@@ -88,7 +89,7 @@ def create_final_report_job(
 @router.post("/evaluation-prep", response_model=GenerationJobDTO, status_code=201)
 def create_evaluation_prep_job(
     payload: GenerationRequest,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> GenerationJobDTO:
     scope_type, scope_id = _resolve_scope(
         payload.scope_type,
@@ -97,7 +98,7 @@ def create_evaluation_prep_job(
         "term-spring-2026",
     )
     return demo_store.create_generation_job(
-        current_user_id,
+        current_user.user_id,
         kind="evaluation_prep",
         scope_type=scope_type,
         scope_id=scope_id,
@@ -107,25 +108,25 @@ def create_evaluation_prep_job(
 @router.get("/{job_id}", response_model=GenerationJobDTO)
 def get_generation_job(
     job_id: str,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> GenerationJobDTO:
-    return demo_store.get_job(current_user_id, job_id)
+    return demo_store.get_job(current_user.user_id, job_id)
 
 
 @router.get("/{job_id}/stream")
 async def stream_generation_job(
     job_id: str,
-    current_user_id: Annotated[str, Depends(get_current_user_id)],
+    current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> StreamingResponse:
-    initial_job = demo_store.start_job(current_user_id, job_id)
-    chunks = demo_store.get_job_events(current_user_id, job_id)
+    initial_job = demo_store.start_job(current_user.user_id, job_id)
+    chunks = demo_store.get_job_events(current_user.user_id, job_id)
 
     async def event_stream():
         yield _format_sse("job", initial_job.model_dump(mode="json"))
 
         for index, chunk in enumerate(chunks, start=1):
             progress = min(90, 20 + index * 20)
-            updated_job = demo_store.update_job_progress(current_user_id, job_id, progress)
+            updated_job = demo_store.update_job_progress(current_user.user_id, job_id, progress)
             yield _format_sse(
                 "chunk",
                 {
@@ -136,7 +137,7 @@ async def stream_generation_job(
             )
             await asyncio.sleep(0.04)
 
-        completed_job = demo_store.complete_job(current_user_id, job_id)
+        completed_job = demo_store.complete_job(current_user.user_id, job_id)
         yield _format_sse("completed", completed_job.model_dump(mode="json"))
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")

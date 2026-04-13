@@ -1,9 +1,4 @@
-export type DailySection = {
-  id: string;
-  label: string;
-  prompt: string;
-  content: string;
-};
+import type { JournalEntryDTO, WorkDayDTO } from "@/shared/lib/backend-types";
 
 export type Attachment = {
   id: string;
@@ -11,6 +6,13 @@ export type Attachment = {
   meta: string;
   previewSrc: string;
   caption: string;
+};
+
+export type DailyLogEntry = {
+  id: string;
+  title: string;
+  content: string;
+  updatedAt: string;
 };
 
 export type DailyLogData = {
@@ -21,15 +23,20 @@ export type DailyLogData = {
   timeIn: string;
   timeOut: string;
   totalHours: string;
-  sections: DailySection[];
+  entries: DailyLogEntry[];
   attachments: Attachment[];
   aiActions: string[];
 };
 
+export type DailyLogPayload = {
+  workDay: WorkDayDTO;
+  entries: JournalEntryDTO[];
+};
+
 function formatDateHeadline(isoDate: string) {
   const fallback = {
-    headline: "Thursday, Apr 2",
-    summary: "Capture the work, blockers, and proof from today while it is still fresh.",
+    headline: "Daily log",
+    summary: "Capture the work while the details are still fresh.",
   };
 
   const parsed = new Date(`${isoDate}T12:00:00`);
@@ -46,72 +53,81 @@ function formatDateHeadline(isoDate: string) {
 
   return {
     headline,
-    summary: `Capture the most important work from ${headline} while the details are still fresh.`,
+    summary: `Add multiple focused entries for ${headline}, then use them later for summaries and the final report.`,
   };
 }
 
-export function getDailyLogData(isoDate = "2026-04-02"): DailyLogData {
+function formatHours(minutes: number) {
+  const hours = minutes / 60;
+  return `${Number.isInteger(hours) ? hours.toFixed(0) : hours.toFixed(1)} hrs`;
+}
+
+function formatSaveState(updatedAt: string | null) {
+  if (!updatedAt) {
+    return "Live backend data";
+  }
+
+  const parsed = new Date(updatedAt);
+  if (Number.isNaN(parsed.getTime())) {
+    return "Live backend data";
+  }
+
+  const minutes = Math.max(0, Math.round((Date.now() - parsed.getTime()) / (1000 * 60)));
+  if (minutes < 1) {
+    return "Saved just now";
+  }
+  if (minutes === 1) {
+    return "Saved 1 minute ago";
+  }
+  return `Saved ${minutes} minutes ago`;
+}
+
+export function buildDailyLogData(
+  isoDate: string,
+  payload: DailyLogPayload,
+): DailyLogData {
   const formatted = formatDateHeadline(isoDate);
+  const latestUpdatedAt =
+    payload.entries
+      .map((entry) => entry.updated_at)
+      .sort()
+      .at(-1) ?? null;
 
   return {
     isoDate,
     headline: formatted.headline,
     summary: formatted.summary,
-    saveState: "Saved 2 minutes ago",
-    timeIn: "08:30",
-    timeOut: "16:30",
-    totalHours: "8.0 hrs",
-    sections: [
-      {
-        id: "work",
-        label: "What did you work on?",
-        prompt: "Describe the concrete work you shipped, debugged, or pushed forward.",
-        content:
-          "I translated the dashboard, daily log, weekly summary, and final report screens into one calmer editorial system. The work focused on hierarchy, stronger page framing, and reducing the feeling of isolated cards.",
-      },
-      {
-        id: "blockers",
-        label: "Challenges or blockers",
-        prompt: "Capture anything that slowed progress or needs follow-up.",
-        content:
-          "The original layouts drifted between dashboard UI and document UI, so the hardest part was deciding what should be persistent chrome versus page-level context. I solved this by standardizing the left rail and slimming the top bar.",
-      },
-      {
-        id: "learned",
-        label: "What did you learn?",
-        prompt: "Write the insight you want to remember next week.",
-        content:
-          "A strong visual system for writing tools relies more on typography, spacing, and controlled contrast than on stacking many cards. The interface feels more premium when the page itself becomes the structure.",
-      },
-      {
-        id: "wins",
-        label: "Wins today",
-        prompt: "Optional. Call out one thing that felt like progress.",
-        content:
-          "The report builder now feels like a real paper-first document studio instead of a settings screen with a textarea in the middle.",
-      },
-    ],
+    saveState: formatSaveState(latestUpdatedAt),
+    timeIn: payload.workDay.time_in_local ?? "",
+    timeOut: payload.workDay.time_out_local ?? "",
+    totalHours: formatHours(payload.workDay.total_minutes),
+    entries: payload.entries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      content: entry.content_md,
+      updatedAt: entry.updated_at,
+    })),
     attachments: [
       {
-        id: "wireframe",
-        name: "weekly-summary-wireframe.png",
-        meta: "Screenshot · 1.8 MB",
+        id: "weekly-reference",
+        name: "weekly-summary-reference.png",
+        meta: "Screenshot · linked later",
         previewSrc: "/mock/weekly-summary-reference.png",
-        caption: "Refined the narrative panel and archive rail hierarchy.",
+        caption: "This stays as a visual reference while the upload flow is still deferred.",
       },
       {
-        id: "notes",
-        name: "report-outline-reference.pdf",
-        meta: "Reference doc · 340 KB",
+        id: "report-reference",
+        name: "final-report-reference.png",
+        meta: "Screenshot · linked later",
         previewSrc: "/mock/final-report-reference.png",
-        caption: "Used the report canvas as a target for cleaner section flow.",
+        caption: "Useful for showing where today’s entries will eventually flow.",
       },
       {
-        id: "feedback",
-        name: "mentor-feedback.txt",
-        meta: "Notes · 4 comments",
+        id: "dashboard-reference",
+        name: "dashboard-reference.png",
+        meta: "Screenshot · linked later",
         previewSrc: "/mock/dashboard-reference.png",
-        caption: "Checked the dashboard against the shared editorial shell.",
+        caption: "Keeps the dashboard and daily log visually aligned during the vertical slice.",
       },
     ],
     aiActions: ["Turn into DTR narrative", "Summarize today", "Expand notes"],

@@ -1,10 +1,11 @@
-import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { DASHBOARD_ROUTE } from "@/shared/lib/routes";
+import { GoogleSignInButton } from "@/modules/auth/components/google-sign-in-button";
+import { hasSupabasePublicEnv } from "@/shared/lib/supabase/env";
 
 export default function LoginPage() {
+  const authConfigured = hasSupabasePublicEnv();
+
   return (
     <main className="min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto grid min-h-[calc(100vh-3rem)] w-full max-w-[1380px] overflow-hidden rounded-[2rem] border border-[rgba(223,231,225,0.96)] bg-white/72 shadow-paper lg:grid-cols-[1.1fr_.9fr]">
@@ -57,20 +58,20 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-4 rounded-[1.75rem] border border-[var(--border)] bg-white/84 p-6">
-              <Button
-                asChild
-                className="h-12 w-full rounded-full bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--foreground)] hover:opacity-90"
-              >
-                <Link href={DASHBOARD_ROUTE}>
-                  Continue to dashboard
-                  <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </Button>
+              <GoogleSignInButton />
 
               <p className="text-sm leading-7 text-muted-foreground">
-                Next integration step: swap this link for Supabase SSR auth and redirect
-                authenticated students to the dashboard route.
+                {authConfigured
+                  ? "Google OAuth is wired for Supabase SSR auth. After sign-in, the app routes will unlock behind the authenticated session."
+                  : "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to activate Google OAuth for this screen."}
               </p>
+
+              {!authConfigured ? (
+                <div className="rounded-[1.25rem] border border-dashed border-[var(--border)] bg-[rgba(245,247,243,0.75)] px-4 py-4 text-sm leading-6 text-muted-foreground">
+                  The rest of the app stays protected until the Supabase public environment
+                  variables are configured.
+                </div>
+              ) : null}
             </div>
           </div>
         </section>

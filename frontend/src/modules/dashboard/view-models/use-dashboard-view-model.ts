@@ -2,14 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchJson } from "@/shared/lib/fetch-json";
+import { fetchDashboardSlice } from "@/shared/lib/backend-client";
 
-import { type DashboardData } from "../models/dashboard";
+import { buildDashboardData, type DashboardData } from "../models/dashboard";
 
 export function useDashboardViewModel() {
   const query = useQuery({
     queryKey: ["dashboard"],
-    queryFn: () => fetchJson<DashboardData>("/api/dashboard"),
+    queryFn: async () => {
+      const toDate = new Date().toISOString().slice(0, 10);
+      const fromDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 60)
+        .toISOString()
+        .slice(0, 10);
+
+      const payload = await fetchDashboardSlice(fromDate, toDate);
+      return buildDashboardData(payload);
+    },
   });
 
   return {

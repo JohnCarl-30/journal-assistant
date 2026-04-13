@@ -5,6 +5,13 @@ This repo now contains:
 - `frontend/`: the Next.js frontend
 - `backend/`: a separate FastAPI backend
 
+Current milestone:
+
+- real Google-authenticated daily-log slice
+- Next.js frontend on the Vercel-style App Router stack
+- FastAPI backend prepared for GCP-oriented deployment later
+- weekly summary, final report, and evaluation-prep generation still scaffolded
+
 ## Frontend
 
 The frontend now lives in `frontend/` and follows an MVVM-style structure:
@@ -23,9 +30,15 @@ npm run dev
 
 The frontend will be available at [http://localhost:3000](http://localhost:3000).
 
+Add frontend env values before testing auth:
+
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
 ## Backend
 
-The backend lives in `backend/` and uses `fastapi[standard]`, which includes the FastAPI Cloud CLI.
+The backend lives in `backend/` and uses `fastapi[standard]` plus SQLAlchemy and JWT verification for the authenticated daily-log slice.
 
 Install backend dependencies and run it locally:
 
@@ -37,20 +50,16 @@ pip install -e .
 fastapi dev
 ```
 
-The API will start locally with:
-
-- `GET /` returning a simple message
-- `GET /health` returning a health check response
-
-## FastAPI Cloud
-
-To deploy the backend with FastAPI Cloud:
+Add backend env values before testing the live slice:
 
 ```bash
-cd backend
-fastapi deploy
+cp backend/.env.example backend/.env
 ```
 
-If you connect this repository directly in FastAPI Cloud as a monorepo, set the application directory to `backend` in the FastAPI Cloud dashboard.
+Apply the SQL migration in `backend/supabase/migrations/` to your Supabase Postgres database before using the real dashboard and daily-log routes.
 
-The backend entrypoint is `backend/main.py`, which matches FastAPI Cloud's default project detection.
+## Deployment Direction
+
+- Frontend is intended for Vercel-style deployment.
+- Backend now targets GCP-oriented deployment later in the roadmap.
+- `backend/.fastapicloud` should be treated as legacy residue, not the default deployment path for new work.
