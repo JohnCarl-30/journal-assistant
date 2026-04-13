@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Assistant Frontend Polish"
+  short_description: "Refine the editorial UI, hierarchy, motion, and visual tone"
+  default_prompt: "Use $journal-assistant-frontend-polish to refine this repo's editorial UI system while keeping the frontend calm, premium, and consistent."
+
+policy:
+  allow_implicit_invocation: true

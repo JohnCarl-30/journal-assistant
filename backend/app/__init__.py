@@ -1,0 +1,1 @@
+"""Journal Assistant backend package."""

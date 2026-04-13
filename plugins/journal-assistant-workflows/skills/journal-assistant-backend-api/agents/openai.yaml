@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Assistant Backend API"
+  short_description: "Implement FastAPI routes, DTOs, services, and tests"
+  default_prompt: "Use $journal-assistant-backend-api to implement or refactor this repo's FastAPI backend, DTOs, service layer, and tests."
+
+policy:
+  allow_implicit_invocation: true

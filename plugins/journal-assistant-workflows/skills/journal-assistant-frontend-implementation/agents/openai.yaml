@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Assistant Frontend Build"
+  short_description: "Implement screens, routes, MVVM modules, and shared UI"
+  default_prompt: "Use $journal-assistant-frontend-implementation to build or refactor this repo's Next.js frontend using its MVVM and shared-component structure."
+
+policy:
+  allow_implicit_invocation: true

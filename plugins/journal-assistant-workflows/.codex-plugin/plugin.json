@@ -1,0 +1,37 @@
+{
+  "name": "journal-assistant-workflows",
+  "version": "0.1.0",
+  "description": "Repo-local Codex workflows for Journal Assistant frontend work, UI polish, and full-stack coordination.",
+  "author": {
+    "name": "Journal Assistant"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "journal-assistant",
+    "nextjs",
+    "fastapi",
+    "frontend",
+    "gcp",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Journal Assistant Workflows",
+    "shortDescription": "Repo-aware Codex workflows for frontend implementation, UI polish, and cross-stack work",
+    "longDescription": "Use Journal Assistant Workflows for this repo's Next.js frontend, calm editorial UI system, FastAPI backend, and cross-stack product changes with GCP as the preferred backend cloud direction.",
+    "developerName": "Journal Assistant",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Route this Journal Assistant task to the right frontend or backend workflow",
+      "Implement a new frontend screen using the repo's MVVM structure",
+      "Polish this UI while keeping the editorial design system consistent"
+    ],
+    "brandColor": "#57C3AE",
+    "screenshots": []
+  }
+}

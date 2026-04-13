@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Assistant Backend GCP"
+  short_description: "Guide GCP hosting, runtime layout, and backend ops"
+  default_prompt: "Use $journal-assistant-backend-gcp to guide this repo's FastAPI backend deployment, runtime setup, and infrastructure choices on GCP."
+
+policy:
+  allow_implicit_invocation: true

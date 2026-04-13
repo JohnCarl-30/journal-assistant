@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Assistant Full-Stack"
+  short_description: "Route work across the repo's frontend and backend"
+  default_prompt: "Use $journal-assistant-fullstack to route this Journal Assistant task across the frontend and backend and apply the repo's working conventions."
+
+policy:
+  allow_implicit_invocation: true

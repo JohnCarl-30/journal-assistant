@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "journal-assistant-backend"
+version = "0.1.0"
+description = "FastAPI backend for Journal Assistant"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi[standard]>=0.116.0,<1.0.0",
+]
+
+[tool.fastapi]
+entrypoint = "main:app"
