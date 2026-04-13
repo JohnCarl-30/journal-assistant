@@ -1,0 +1,14 @@
+
+> journal-assistant-frontend@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1038ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 768ms (1103 modules)
+ GET /dashboard 200 in 1256ms
